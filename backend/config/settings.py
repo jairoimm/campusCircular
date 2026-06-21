@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9pil!2-g^uzw@$fk_@8l$z_@=t^yxh1c7(xc+61(gvz@z^d*d('
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-campusCircular-dev-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=['*'])
 
 
 # Application definition
@@ -37,9 +38,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Librerías externas
+    'rest_framework',             # Permite crear la API REST
+    'rest_framework.authtoken',   # Tokens de autenticación para la API
+    'corsheaders',                # Permite que React hable con Django
+
+    #nuestra app
+    'usuarios',
+    'residuos',
+    'sensores',
+    'puntos',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # Debe ir antes de CommonMiddleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,6 +71,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -98,13 +112,38 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# ─── DJANGO REST FRAMEWORK ────────────────────────────────────────────────────
+# Configuración de la API REST
+REST_FRAMEWORK = {
+    # Por defecto, todos los endpoints requieren autenticación
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    # Solo usuarios autenticados pueden usar la API
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    # Formato de respuesta siempre JSON
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+}
+
+# ─── CORS ─────────────────────────────────────────────────────────────────────
+# Permite que React (puerto 3000) hable con Django (puerto 8000)
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',   # React en desarrollo
+    'http://localhost:5173',   # React con Vite
+]
+CORS_ALLOW_CREDENTIALS = True
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-cl'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'america/santiago'
 
 USE_I18N = True
 
@@ -115,6 +154,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+STATIC_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
