@@ -8,3 +8,6 @@ __pycache__/
 
 # Archivos de base de datos local
 db.sqlite3
+
+# claves secretas y configuraciones sensibles
+config/settings
