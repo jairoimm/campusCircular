@@ -1,0 +1,10 @@
+# Entorno virtual y carpetas de sistema
+venv/
+__pycache__/
+*.pyc
+
+# Variables de entorno (¡Muy importante por seguridad!)
+.env
+
+# Archivos de base de datos local
+db.sqlite3
